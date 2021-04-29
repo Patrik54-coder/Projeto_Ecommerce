@@ -1,11 +1,14 @@
 package com.Ecommerce.service;
 
+import java.nio.charset.Charset;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.apache.commons.codec.binary.Base64;
 import com.Ecommerce.model.Produto;
 import com.Ecommerce.model.Usuario;
+import com.Ecommerce.model.UsuarioLogin;
 import com.Ecommerce.repository.ProdutoRepository;
 import com.Ecommerce.repository.UsuarioRepository;
 
@@ -28,27 +31,31 @@ public class UsuarioService {
 		if(usuarioExistente.isPresent()) {
 		return Optional.empty();
 		}
-		Optional<Usuario> usuarioCadastrado = Optional.ofNullable(repositoryUsuario.save(novoUsuario));
-		if(usuarioCadastrado.isPresent()) {
-			return usuarioCadastrado;
-		}else {
-			return Optional.empty();
-		}
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		String senhaCriptografada = encoder.encode(novoUsuario.getSenha());
+		novoUsuario.setSenha(senhaCriptografada);
+		return Optional.ofNullable(repositoryUsuario.save(novoUsuario));
 	}
 	/**
 	 * Logar um usuario existente para acessar o sistema 
 	 * @return retorna o usuario caso os parametros estejam corretos
 	 */
-	public Optional<Usuario> logar(Optional<Usuario> Usuario){
-		Optional<Usuario> usuarioPresente = repositoryUsuario.findByUsuario(Usuario.get().getUsuario());
+	public Optional<UsuarioLogin> logar(Optional<UsuarioLogin> usuarioLogin){
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		Optional<Usuario> usuarioPresente = repositoryUsuario.findByUsuario(usuarioLogin.get().getUsuario());
 
 		if(usuarioPresente.isPresent()) {
-				Usuario.get().getUsuario();
-				Usuario.get().getSenha();				
-				Usuario.get().setNome(usuarioPresente.get().getNome());
-				Usuario.get().setSenha(usuarioPresente.get().getSenha());
+			if(encoder.matches(usuarioLogin.get().getSenha(), usuarioPresente.get().getSenha())) {
+				String auth = usuarioLogin.get().getUsuario() + ":" + usuarioLogin.get().getSenha();
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("US-ASCII")));
+				String authHeader = "Basic " + new String(encodedAuth);
+				
+				usuarioLogin.get().setToken(authHeader);				
+				usuarioLogin.get().setNome(usuarioPresente.get().getNome());
+				usuarioLogin.get().setSenha(usuarioPresente.get().getSenha());
 
-				return Usuario;
+				return usuarioLogin;
+			}
 		}
 		return null;
 	}
@@ -63,6 +70,30 @@ public class UsuarioService {
 		}
 		return null;
 	}
+	
+	public Optional<Produto> inserirNoCarrinho(Long idUsuario, Produto produto) {
+		Optional<Usuario> usuarioExistente = repositoryUsuario.findById(idUsuario);
+		if(usuarioExistente.isPresent()) {
+			produto.setUsuario(usuarioExistente.get());		
+			return Optional.ofNullable(repositoryProduto.save(produto));
+		}
+		return Optional.empty();
+	}
+	
+	public Optional<Usuario> removerDoCarrinho(Long idUsuario, Long idProduto) {
+		Optional<Produto> produto = repositoryProduto.findById(idProduto);
+		Optional<Usuario> usuario = repositoryUsuario.findById(idUsuario);
+
+		if (produto.isPresent() && usuario.isPresent()) {
+
+			usuario.get().getMinhasCompras().remove(produto.get());
+			return Optional.ofNullable(repositoryUsuario.save(usuario.get()));
+		} else {
+			return Optional.empty();
+		}
+
+	}
+	
 	public Usuario cadastrarProduto(Produto novoProduto, Long idUsuario) {
 		Optional<Usuario> usuarioExistente = repositoryUsuario.findById(idUsuario);
 		if(usuarioExistente.isPresent()) {

@@ -26,9 +26,9 @@ public class Usuario {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	private @NotNull @Size(max = 45) String nome;
-	private @NotNull @Size(max = 45) String usuario;
-	private @NotNull @Size(max = 45) String senha;
+	private @NotNull @Size(min = 2) String nome;
+	private @NotNull @Size(min = 2) String usuario;
+	private @NotNull @Size(min = 2) String senha;
 	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinTable(
 			  name = "inscricao", 
@@ -100,4 +100,10 @@ public class Usuario {
 	public void setProduto(List<Produto> produto) {
 		this.produto = produto;
 	}
+
+	public List<Produto> getMinhasCompras() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
