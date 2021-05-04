@@ -70,30 +70,7 @@ public class UsuarioService {
 		}
 		return null;
 	}
-	
-	public Optional<Produto> inserirNoCarrinho(Long idUsuario, Produto produto) {
-		Optional<Usuario> usuarioExistente = repositoryUsuario.findById(idUsuario);
-		if(usuarioExistente.isPresent()) {
-			produto.setUsuario(usuarioExistente.get());		
-			return Optional.ofNullable(repositoryProduto.save(produto));
-		}
-		return Optional.empty();
-	}
-	
-	public Optional<Usuario> removerDoCarrinho(Long idUsuario, Long idProduto) {
-		Optional<Produto> produto = repositoryProduto.findById(idProduto);
-		Optional<Usuario> usuario = repositoryUsuario.findById(idUsuario);
 
-		if (produto.isPresent() && usuario.isPresent()) {
-
-			usuario.get().getMinhasCompras().remove(produto.get());
-			return Optional.ofNullable(repositoryUsuario.save(usuario.get()));
-		} else {
-			return Optional.empty();
-		}
-
-	}
-	
 	public Usuario cadastrarProduto(Produto novoProduto, Long idUsuario) {
 		Optional<Usuario> usuarioExistente = repositoryUsuario.findById(idUsuario);
 		if(usuarioExistente.isPresent()) {

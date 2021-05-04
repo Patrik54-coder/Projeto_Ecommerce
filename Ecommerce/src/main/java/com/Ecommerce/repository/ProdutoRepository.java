@@ -13,5 +13,6 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long>{
 
 	@Query(value = "SELECT * FROM tb_produto WHERE preco >= 10.0",nativeQuery = true)
 	public  List<Produto> finByPreco(@Param("preco")Float preco);
+
 	
 }

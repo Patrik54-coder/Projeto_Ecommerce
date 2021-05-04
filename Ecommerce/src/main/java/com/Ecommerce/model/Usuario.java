@@ -101,9 +101,5 @@ public class Usuario {
 		this.produto = produto;
 	}
 
-	public List<Produto> getMinhasCompras() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }

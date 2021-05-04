@@ -22,6 +22,8 @@ import com.Ecommerce.model.UsuarioLogin;
 import com.Ecommerce.repository.UsuarioRepository;
 import com.Ecommerce.service.UsuarioService;
 
+import io.swagger.annotations.ApiOperation;
+
 
 
 @RestController
@@ -33,11 +35,13 @@ public class UsuarioController {
 	private @Autowired UsuarioService serviceUsuario;
 	
 	@PostMapping("/cadastrar")
+	@ApiOperation(value="Cadastra um novo cliente")
 	public ResponseEntity<?> cadastrarUsuario(@Valid @RequestBody Usuario novoUsuario){
 		Optional<Usuario> dto = serviceUsuario.cadastrarUsuario(novoUsuario);
 		return !dto.isEmpty() ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
 	}
 	@PostMapping("/cadastrarProduto/{id_Usuario}")
+	@ApiOperation(value="Cliente cadastra um novo produto")
 	public ResponseEntity<?> cadastrarProduto(
 			@Valid @RequestBody Produto novoProduto,
 			@PathVariable(value= "id_Usuario")Long idUsuario){
@@ -46,12 +50,16 @@ public class UsuarioController {
 	}
 	
 	@PostMapping("/logar")
-	public ResponseEntity<UsuarioLogin> auth(@RequestBody Optional<UsuarioLogin> usuarioLogin){
+	@ApiOperation(value="Realiza o login do cliente")
+	public ResponseEntity<UsuarioLogin> logar(@RequestBody Optional<UsuarioLogin> usuarioLogin){
 		return serviceUsuario.logar(usuarioLogin)
 				.map(usuario -> ResponseEntity.ok(usuario))
 				.orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
 	}
-	@PutMapping("/produto/compra/{id_Produto}/{id_Usuario}")
+	
+	
+	@PostMapping("/produto/compra/{id_Produto}/{id_Usuario}")
+	@ApiOperation(value="Realiza uma compra")
 	public ResponseEntity<?> novaCompra(
 			@PathVariable(value = "id_Produto") Long idProduto,
 			@PathVariable(value = "id_Usuario") Long idUsuario){
@@ -63,11 +71,13 @@ public class UsuarioController {
 	}
 	
 	@GetMapping("/usuario/produto")
+	@ApiOperation(value="Busca e retorna o usuario e seus produtos")
 	public ResponseEntity<List<Usuario>> findAllUsuarioByProduto(@RequestParam(defaultValue = "") String titulo){
 		return new ResponseEntity<List<Usuario>>(repository.findAllUsuarioByProdutoTitulo(titulo), HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/produto/delete/{id_Produto}/{id_Usuario}")
+	@ApiOperation(value="Deleta o produto cadastrado")
 	public ResponseEntity<Object> removerProduto(
 			@PathVariable(value = "id_Produto") Long idProduto,
 			@PathVariable(value = "id_Usuario") Long idUsuario){

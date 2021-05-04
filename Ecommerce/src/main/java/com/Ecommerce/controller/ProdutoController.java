@@ -18,6 +18,8 @@ import com.Ecommerce.model.Produto;
 import com.Ecommerce.repository.ProdutoRepository;
 import com.Ecommerce.service.ProdutoService;
 
+import io.swagger.annotations.ApiOperation;
+
 
 
 @RestController
@@ -30,24 +32,29 @@ public class ProdutoController {
 	private @Autowired ProdutoService services;
 	
 	@GetMapping("/titulo/{titulo}")
+	@ApiOperation(value="Busca e retorna a produto por titulo")
 	public ResponseEntity<List<Produto>> pegarPorTitulo(@RequestParam (defaultValue = "")String titulo){
 		return new ResponseEntity<List<Produto>>(services.pegarPorTitulo(titulo), HttpStatus.ACCEPTED);
 	}
 	
 	@GetMapping("preco/{preco}")
+	@ApiOperation(value="Busca e retorna o produto pelo preço")
 	public ResponseEntity<List<Produto>> GetfindByPreco(@PathVariable Float preco) 
 	{
 		return ResponseEntity.ok(repository.finByPreco(preco));
 	}
 	@PostMapping
+	@ApiOperation(value="Realiza o cadastro do produto")
 	public ResponseEntity<Produto> post (@RequestBody Produto produto){
 	return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(produto));
 	}
 	@PutMapping
+	@ApiOperation(value="Modifica as informações do produto")
 	public ResponseEntity<Produto> put (@RequestBody Produto produto){
 	return ResponseEntity.status(HttpStatus.OK).body(repository.save(produto));
 	}
 	@DeleteMapping("/{id}")
+	@ApiOperation(value="Apaga o produto pelo id")
 	public void delete(@PathVariable Long id){
 	repository.deleteById(id);
 	}
